@@ -4,7 +4,7 @@
 
 # v-merkletree
 
-Create sha256-based merkle trees with custom branching factors.
+Lightweight library (under 100 lines) that lets you create sha256-based merkle trees with custom branching factors.
 
 ## :bulb: Interface
 
