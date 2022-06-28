@@ -1,6 +1,6 @@
 Module {
 	name: 'merkletree'
-	description: 'vls is a language server for the V language.'
+	description: 'Create sha256-based merkle trees with custom branching factors.'
 	version: '0.0.1'
 	dependencies: []
 }
