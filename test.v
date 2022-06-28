@@ -1,7 +1,7 @@
-import merkletree
+import merkletree { MerkleTree }
 
 fn main() {
-	tree := &merkletree.MerkleTree{
+	tree := &MerkleTree{
 		blocks: ['1', '2', '3', '4']
 	}
 
