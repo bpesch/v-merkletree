@@ -1,11 +1,13 @@
+module merkletree
+
 import crypto.sha256
 
-struct MerkleTree {
+pub struct MerkleTree {
 	blocks []string [required]
 	branching_factor int = 2
 }
 
-fn (m MerkleTree) get_root() Node {
+pub fn (m MerkleTree) get_root() []u8 {
 	mut leaves := []Node{}
 
 	// create leaf nodes
@@ -17,7 +19,7 @@ fn (m MerkleTree) get_root() Node {
 		}
 	}
 
-	return m.build_tree(leaves)
+	return m.build_tree(leaves).get_hash()
 }
 
 fn (m MerkleTree) build_tree(nodes []Node) Node {
