@@ -26,10 +26,12 @@ import merkletree { MerkleTree }
 
 fn main() {
 	tree := &MerkleTree{
-		blocks: ['1', '2', '3', '4']
+		blocks: ['1', '2', '3', '4'],
+		branching_factor: 2
 	}
 
-	root := tree.get_root().hex()
+	root := tree.get_root()
+	print(root.hex()
 }
 ```
 
