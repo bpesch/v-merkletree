@@ -39,8 +39,8 @@ import merkletree { MerkleTree, Sha256 }
 
 fn main() {
 	tree := &MerkleTree{
-		blocks: ['1', '2', '3', '4'],
-		hashing_algorithm: &Sha256{},
+		blocks: ['1', '2', '3', '4']
+		hashing_algorithm: &Sha256{}
 		branching_factor: 2
 	}
 
