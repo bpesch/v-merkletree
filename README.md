@@ -4,29 +4,43 @@
 
 # v-merkletree
 
-Lightweight library (under 100 lines) that lets you create sha256-based merkle trees with custom branching factors.
+Lightweight library that lets you create merkle trees with custom branching factors.
+
+The library supports all hashing algorithms native to V out of the box.
 
 ## :bulb: Interface
 
 ```v
 pub struct MerkleTree {
-	blocks []string [required]
-	branching_factor int = 2
+	blocks            []string         [required]
+	branching_factor  int = 2
+	hashing_algorithm HashingAlgorithm
 }
 ```
+
+View [this file](./algorithms.v) for a list of hashing algorithms supported out of the box.
 
 ```v
 pub fn (m MerkleTree) get_root() []u8
 ```
 
+In case you want to implement a custom hashing algorithm, please do so according to this interface.
+
+```v
+pub interface HashingAlgorithm {
+	sum(data []u8) []u8
+}
+```
+
 ## :rocket: Full example
 
 ```v
-import merkletree { MerkleTree }
+import merkletree { MerkleTree, Sha256 }
 
 fn main() {
 	tree := &MerkleTree{
-		blocks: ['1', '2', '3', '4'],
+		blocks: ['1', '2', '3', '4']
+		hashing_algorithm: &Sha256{}
 		branching_factor: 2
 	}
 
