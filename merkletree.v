@@ -1,10 +1,11 @@
 module merkletree
 
-import crypto.sha256
+// public api
 
 pub struct MerkleTree {
-	blocks           []string [required]
-	branching_factor int = 2
+	blocks            []string         [required]
+	branching_factor  int = 2
+	hashing_algorithm HashingAlgorithm
 }
 
 pub fn (m MerkleTree) get_root() []u8 {
@@ -19,8 +20,10 @@ pub fn (m MerkleTree) get_root() []u8 {
 		}
 	}
 
-	return m.build_tree(leaves).get_hash()
+	return m.build_tree(leaves).get_hash(m.hashing_algorithm)
 }
+
+// internal
 
 fn (m MerkleTree) build_tree(nodes []Node) Node {
 	if 1 == nodes.len {
@@ -36,7 +39,7 @@ fn (m MerkleTree) build_tree(nodes []Node) Node {
 
 		// group nodes dependent on branching factor
 		for j := i; j < i + m.branching_factor; j++ {
-			// there are enough nodes to fill this group of siblings
+			// are there enough nodes to fill this group of siblings?
 			if j <= nodes.len - 1 {
 				siblings << Child(nodes[j])
 			}
@@ -57,10 +60,10 @@ struct Node {
 }
 
 struct Block {
-	value string
+	value string [required]
 }
 
-fn (n Node) get_hash() []u8 {
+fn (n Node) get_hash(hashing_algorithm HashingAlgorithm) []u8 {
 	mut payload := []u8{}
 
 	if 1 == n.children.len {
@@ -68,7 +71,7 @@ fn (n Node) get_hash() []u8 {
 		if n.children[0] is Node {
 			// lonely node -> avoid re-hashing
 			node := n.children[0] as Node
-			return node.get_hash()
+			return node.get_hash(hashing_algorithm)
 		}
 
 		// prevent second preimage attacks
@@ -82,9 +85,9 @@ fn (n Node) get_hash() []u8 {
 		// create sum of child nodes
 		for child in n.children {
 			node := child as Node
-			payload << node.get_hash()
+			payload << node.get_hash(hashing_algorithm)
 		}
 	}
 
-	return sha256.sum(payload)
+	return hashing_algorithm.sum(payload)
 }
