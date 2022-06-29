@@ -1,6 +1,6 @@
 Module {
 	name: 'merkletree'
-	description: 'Create sha256-based merkle trees with custom branching factors.'
+	description: 'Create merkle trees with custom branching factors and hashing algorithms.'
 	version: '0.0.1'
 	dependencies: []
 }
