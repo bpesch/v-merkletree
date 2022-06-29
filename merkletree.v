@@ -3,7 +3,7 @@ module merkletree
 import crypto.sha256
 
 pub struct MerkleTree {
-	blocks []string [required]
+	blocks           []string [required]
 	branching_factor int = 2
 }
 
@@ -15,7 +15,7 @@ pub fn (m MerkleTree) get_root() []u8 {
 		leaves << Node{
 			children: [Block{
 				value: block
-			}],
+			}]
 		}
 	}
 
@@ -50,7 +50,7 @@ fn (m MerkleTree) build_tree(nodes []Node) Node {
 	return m.build_tree(parents)
 }
 
-type Child = Node | Block
+type Child = Block | Node
 
 struct Node {
 	children []Child [required]
