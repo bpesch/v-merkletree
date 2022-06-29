@@ -31,7 +31,7 @@ fn main() {
 	}
 
 	root := tree.get_root()
-	print(root.hex()
+	print(root.hex())
 }
 ```
 
