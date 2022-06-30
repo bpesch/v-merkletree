@@ -82,8 +82,7 @@ fn (n Node) get_hash(hashing_algorithm HashingAlgorithm) []u8 {
 
 		// create sum of child nodes
 		for child in n.children {
-			node := child as Node
-			payload << node.get_hash(hashing_algorithm)
+			payload << (child as Node).get_hash(hashing_algorithm)
 		}
 	}
 
