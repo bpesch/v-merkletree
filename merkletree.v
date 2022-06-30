@@ -2,17 +2,13 @@ module merkletree
 
 // public api
 
-pub struct MerkleTree {
-	blocks            [][]u8           [required]
-	branching_factor  int = 2
-	hashing_algorithm HashingAlgorithm
-}
+pub type HashFunction = fn (data []u8) []u8
 
-pub fn (m MerkleTree) get_root() []u8 {
+pub fn get_root(blocks [][]u8, branching_factor int, hash_function HashFunction) []u8 {
 	mut leaves := []Node{}
 
 	// create leaf nodes
-	for block in m.blocks {
+	for block in blocks {
 		leaves << Node{
 			children: [Block{
 				value: block
@@ -20,12 +16,12 @@ pub fn (m MerkleTree) get_root() []u8 {
 		}
 	}
 
-	return m.build_tree(leaves).get_hash(m.hashing_algorithm)
+	return build_tree(leaves, branching_factor).get_hash(hash_function)
 }
 
 // internal
 
-fn (m MerkleTree) build_tree(nodes []Node) Node {
+fn build_tree(nodes []Node, branching_factor int) Node {
 	if 1 == nodes.len {
 		// root found
 		return nodes[0]
@@ -33,12 +29,12 @@ fn (m MerkleTree) build_tree(nodes []Node) Node {
 
 	mut parents := []Node{}
 
-	// only create parent node from every m.branching_factor-th node and its siblings
-	for i := 0; i <= nodes.len - 1; i += m.branching_factor {
+	// only create parent node from every branching_factor-th node and its siblings
+	for i := 0; i <= nodes.len - 1; i += branching_factor {
 		mut siblings := []Child{}
 
 		// group nodes dependent on branching factor
-		for j := i; j < i + m.branching_factor; j++ {
+		for j := i; j < i + branching_factor; j++ {
 			// are there enough nodes to fill this group of siblings?
 			if j < nodes.len {
 				siblings << Child(nodes[j])
@@ -50,7 +46,7 @@ fn (m MerkleTree) build_tree(nodes []Node) Node {
 		}
 	}
 
-	return m.build_tree(parents)
+	return build_tree(parents, branching_factor)
 }
 
 type Child = Block | Node
@@ -63,28 +59,28 @@ struct Block {
 	value []u8 [required]
 }
 
-fn (n Node) get_hash(hashing_algorithm HashingAlgorithm) []u8 {
+fn (n Node) get_hash(hash_function HashFunction) []u8 {
 	mut payload := []u8{}
 
 	if 1 == n.children.len {
 		// is this a leaf node?
 		if n.children[0] is Node {
 			// lonely node -> avoid re-hashing
-			return (n.children[0] as Node).get_hash(hashing_algorithm)
+			return (n.children[0] as Node).get_hash(hash_function)
 		}
 
 		// prevent second preimage attacks
-		payload << [u8(0x00)]
+		payload << 0
 		payload << (n.children[0] as Block).value
 	} else {
 		// prevent second preimage attacks
-		payload << [u8(0x01)]
+		payload << 1
 
 		// create sum of child nodes
 		for child in n.children {
-			payload << (child as Node).get_hash(hashing_algorithm)
+			payload << (child as Node).get_hash(hash_function)
 		}
 	}
 
-	return hashing_algorithm.sum(payload)
+	return hash_function(payload)
 }

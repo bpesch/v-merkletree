@@ -11,40 +11,29 @@ The library supports all hashing algorithms native to V out of the box.
 ## :bulb: Interface
 
 ```v
-pub struct MerkleTree {
-	blocks            []string         [required]
-	branching_factor  int = 2
-	hashing_algorithm HashingAlgorithm
-}
+pub fn get_root(blocks [][]u8, branching_factor int, hash_function HashFunction) []u8
 ```
 
-View [this file](./algorithms.v) for a list of hashing algorithms supported out of the box.
+In case you want to implement a custom hashing algorithm, please do so according to this blueprint.
 
 ```v
-pub fn (m MerkleTree) get_root() []u8
-```
-
-In case you want to implement a custom hashing algorithm, please do so according to this interface.
-
-```v
-pub interface HashingAlgorithm {
-	sum(data []u8) []u8
-}
+pub type HashFunction = fn (data []u8) []u8
 ```
 
 ## :rocket: Full example
 
 ```v
-import merkletree { MerkleTree, Sha256 }
+import merkletree { get_root }
+import crypto.sha256
 
 fn main() {
-	tree := &MerkleTree{
-		blocks: ['1'.bytes(), '2'.bytes(), '3'.bytes(), '4'.bytes()]
-		hashing_algorithm: &Sha256{}
-		branching_factor: 2
-	}
+	root := get_root([
+		'1'.bytes(),
+		'2'.bytes(),
+		'3'.bytes(),
+		'4'.bytes(),
+	], 2, sha256.sum)
 
-	root := tree.get_root()
 	print(root.hex())
 }
 ```
