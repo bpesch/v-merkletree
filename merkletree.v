@@ -34,13 +34,13 @@ fn (m MerkleTree) build_tree(nodes []Node) Node {
 	mut parents := []Node{}
 
 	// only create parent node from every m.branching_factor-th node and its siblings
-	for i := 0; i <= nodes.len - m.branching_factor; i += m.branching_factor {
+	for i := 0; i <= nodes.len - 1; i += m.branching_factor {
 		mut siblings := []Child{}
 
 		// group nodes dependent on branching factor
 		for j := i; j < i + m.branching_factor; j++ {
 			// are there enough nodes to fill this group of siblings?
-			if j <= nodes.len - 1 {
+			if j < nodes.len {
 				siblings << Child(nodes[j])
 			}
 		}
