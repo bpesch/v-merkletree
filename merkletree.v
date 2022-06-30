@@ -3,7 +3,7 @@ module merkletree
 // public api
 
 pub struct MerkleTree {
-	blocks            []string         [required]
+	blocks            [][]u8           [required]
 	branching_factor  int = 2
 	hashing_algorithm HashingAlgorithm
 }
@@ -60,14 +60,14 @@ struct Node {
 }
 
 struct Block {
-	value string [required]
+	value []u8 [required]
 }
 
 fn (n Node) get_hash(hashing_algorithm HashingAlgorithm) []u8 {
 	mut payload := []u8{}
 
 	if 1 == n.children.len {
-		// is this a leaf node ?
+		// is this a leaf node?
 		if n.children[0] is Node {
 			// lonely node -> avoid re-hashing
 			return (n.children[0] as Node).get_hash(hashing_algorithm)
@@ -75,7 +75,7 @@ fn (n Node) get_hash(hashing_algorithm HashingAlgorithm) []u8 {
 
 		// prevent second preimage attacks
 		payload << [u8(0x00)]
-		payload << (n.children[0] as Block).value.bytes()
+		payload << (n.children[0] as Block).value
 	} else {
 		// prevent second preimage attacks
 		payload << [u8(0x01)]
