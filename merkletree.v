@@ -70,14 +70,12 @@ fn (n Node) get_hash(hashing_algorithm HashingAlgorithm) []u8 {
 		// is this a leaf node ?
 		if n.children[0] is Node {
 			// lonely node -> avoid re-hashing
-			node := n.children[0] as Node
-			return node.get_hash(hashing_algorithm)
+			return (n.children[0] as Node).get_hash(hashing_algorithm)
 		}
 
 		// prevent second preimage attacks
 		payload << [u8(0x00)]
-		block := n.children[0] as Block
-		payload << block.value.bytes()
+		payload << (n.children[0] as Block).value.bytes()
 	} else {
 		// prevent second preimage attacks
 		payload << [u8(0x01)]
