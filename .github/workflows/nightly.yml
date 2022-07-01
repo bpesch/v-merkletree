@@ -1,4 +1,4 @@
-name: Release latest build
+name: Release
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   pre-release:
-    name: Create Github Release
+    name: Create Nightly Release
     runs-on: ubuntu-20.04
     steps:
       - uses: "marvinpinto/action-automatic-releases@latest"
