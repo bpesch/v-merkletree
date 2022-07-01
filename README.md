@@ -27,7 +27,7 @@ pub fn (mut m MerkleTree) build(blocks [][]u8)
 
 ### get_root
 
-Returns Merkle root of tree as byte array. All node hashes are lazy loaded and only being recomputed when needed.
+Returns Merkle root of tree as byte array. All node hashes are lazy loaded and only being calculated once.
 
 ```v
 pub fn (mut m MerkleTree) get_root() []u8
