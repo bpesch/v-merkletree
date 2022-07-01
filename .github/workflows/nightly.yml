@@ -1,0 +1,20 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  pre-release:
+    name: Create Nightly Release
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        name: Create Release
+        id: create_release
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
+          prerelease: true
+          title: "Latest Development Release"

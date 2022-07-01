@@ -4,7 +4,7 @@
 
 # v-merkletree
 
-Lightweight library that lets you create merkle trees with custom branching factors.
+Lightweight library that lets you create Merkle trees with custom branching factors.
 
 The library supports all hashing algorithms native to V out of the box.
 
