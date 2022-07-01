@@ -54,6 +54,26 @@ fn test_asymmetric() {
 	assert tree.get_root().hex() == '01ceda24bdd3a0a2308511b36c6c122ea63f8fb1d641f980a4fc5480aa878961'
 }
 
+fn test_asymmetric_half_complete() {
+	mut tree := &MerkleTree{
+		hash_function: sha256.sum
+		branching_factor: 3
+	}
+
+	tree.build([
+		'1'.bytes(),
+		'2'.bytes(),
+		'3'.bytes(),
+		'4'.bytes(),
+		'5'.bytes(),
+		'6'.bytes(),
+		'7'.bytes(),
+		'8'.bytes(),
+	])
+
+	assert tree.get_root().hex() == '09f165703b29470a2df3f40725f5c1575ecd4d0a374f97e663b126db4e76f404'
+}
+
 fn test_branching_factor_higher_than_block_count() {
 	mut tree := &MerkleTree{
 		hash_function: sha256.sum

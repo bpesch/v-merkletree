@@ -22,7 +22,7 @@ struct Block {
 pub type Child = Block | Node
 
 pub fn (mut m MerkleTree) build(blocks [][]u8) {
-	mut leaves := []&Node{}
+	mut leaves := []&Child{}
 
 	// create leaf nodes
 	for block in blocks {
@@ -38,14 +38,14 @@ pub fn (mut m MerkleTree) build(blocks [][]u8) {
 	m.root.get_hash(m.hash_function)
 }
 
-fn (mut m MerkleTree) process_nodes(nodes []&Node) {
+fn (mut m MerkleTree) process_nodes(nodes []&Child) {
 	if 1 == nodes.len {
 		// root found
-		m.root = nodes[0]
+		m.root = nodes[0] as Node
 		return
 	}
 
-	mut parents := []&Node{}
+	mut parents := []&Child{}
 
 	// only create parent node from every m.branching_factor-th node and its siblings
 	for i := 0; i <= nodes.len - 1; i += m.branching_factor {
@@ -55,12 +55,17 @@ fn (mut m MerkleTree) process_nodes(nodes []&Node) {
 		for j := i; j < i + m.branching_factor; j++ {
 			// are there enough nodes to fill this group of siblings?
 			if j < nodes.len {
-				siblings << &Child(nodes[j])
+				siblings << nodes[j]
 			}
 		}
 
-		parents << &Node{
-			children: siblings
+		// do not add layers to lonely nodes
+		if 1 == siblings.len {
+			parents << siblings
+		} else {
+			parents << &Node{
+				children: siblings
+			}
 		}
 	}
 
@@ -68,7 +73,7 @@ fn (mut m MerkleTree) process_nodes(nodes []&Node) {
 }
 
 fn (mut n Node) get_hash(hash_function HashFunction) []u8 {
-	// lazy hash creation
+	// lazy hash processing
 	if 0 != n.hash.len {
 		return n.hash
 	}
