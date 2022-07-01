@@ -1,72 +1,91 @@
 module merkletree
 
-// public api
-
 pub type HashFunction = fn (data []u8) []u8
 
-pub fn get_root(blocks [][]u8, branching_factor int, hash_function HashFunction) []u8 {
-	mut leaves := []Node{}
-
-	// create leaf nodes
-	for block in blocks {
-		leaves << Node{
-			children: [Block{
-				value: block
-			}]
-		}
-	}
-
-	return build_tree(leaves, branching_factor).get_hash(hash_function)
+pub struct MerkleTree {
+	branching_factor int = 2
+	hash_function    HashFunction [required]
+mut:
+	root Node
 }
-
-// internal
-
-fn build_tree(nodes []Node, branching_factor int) Node {
-	if 1 == nodes.len {
-		// root found
-		return nodes[0]
-	}
-
-	mut parents := []Node{}
-
-	// only create parent node from every branching_factor-th node and its siblings
-	for i := 0; i <= nodes.len - 1; i += branching_factor {
-		mut siblings := []Child{}
-
-		// group nodes dependent on branching factor
-		for j := i; j < i + branching_factor; j++ {
-			// are there enough nodes to fill this group of siblings?
-			if j < nodes.len {
-				siblings << Child(nodes[j])
-			}
-		}
-
-		parents << Node{
-			children: siblings
-		}
-	}
-
-	return build_tree(parents, branching_factor)
-}
-
-type Child = Block | Node
 
 struct Node {
-	children []Child [required]
+	children []&Child [required]
+mut:
+	hash []u8 = []u8{}
 }
 
 struct Block {
 	value []u8 [required]
 }
 
-fn (n Node) get_hash(hash_function HashFunction) []u8 {
+pub type Child = Block | Node
+
+pub fn (mut m MerkleTree) build(blocks [][]u8) {
+	mut leaves := []&Child{}
+
+	// create leaf nodes
+	for block in blocks {
+		leaves << &Node{
+			children: [Block{
+				value: block
+			}]
+		}
+	}
+
+	m.process_nodes(leaves)
+	// pre-calculate hashes
+	m.root.get_hash(m.hash_function)
+}
+
+fn (mut m MerkleTree) process_nodes(nodes []&Child) {
+	if 1 == nodes.len {
+		// root found
+		m.root = nodes[0] as Node
+		return
+	}
+
+	mut parents := []&Child{}
+
+	// only create parent node from every m.branching_factor-th node and its siblings
+	for i := 0; i <= nodes.len - 1; i += m.branching_factor {
+		mut siblings := []&Child{}
+
+		// group nodes dependent on branching factor
+		for j := i; j < i + m.branching_factor; j++ {
+			// are there enough nodes to fill this group of siblings?
+			if j < nodes.len {
+				siblings << nodes[j]
+			}
+		}
+
+		// do not add layers to lonely nodes
+		if 1 == siblings.len {
+			parents << siblings
+		} else {
+			parents << &Node{
+				children: siblings
+			}
+		}
+	}
+
+	m.process_nodes(parents)
+}
+
+fn (mut n Node) get_hash(hash_function HashFunction) []u8 {
+	// lazy hash processing
+	if 0 != n.hash.len {
+		return n.hash
+	}
+
 	mut payload := []u8{}
 
 	if 1 == n.children.len {
 		// is this a leaf node?
 		if n.children[0] is Node {
 			// lonely node -> avoid re-hashing
-			return (n.children[0] as Node).get_hash(hash_function)
+			mut child := &(n.children[0] as Node)
+			return child.get_hash(hash_function)
 		}
 
 		// prevent second preimage attacks
@@ -78,9 +97,15 @@ fn (n Node) get_hash(hash_function HashFunction) []u8 {
 
 		// create sum of child nodes
 		for child in n.children {
-			payload << (child as Node).get_hash(hash_function)
+			mut casted := &(child as Node)
+			payload << casted.get_hash(hash_function)
 		}
 	}
 
-	return hash_function(payload)
+	n.hash = hash_function(payload)
+	return n.hash
+}
+
+pub fn (mut m MerkleTree) get_root() []u8 {
+	return m.root.get_hash(m.hash_function)
 }
