@@ -19,7 +19,7 @@ struct Block {
 	value []u8 [required]
 }
 
-pub type Child = Block | Node
+type Child = Block | Node
 
 pub fn (mut m MerkleTree) build(blocks [][]u8) {
 	mut leaves := []&Child{}
