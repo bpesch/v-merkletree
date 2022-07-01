@@ -1,4 +1,4 @@
-name: Build and release pre-built binaries (Dev build)
+name: Release latest build
 
 on:
   push:
@@ -8,7 +8,6 @@ on:
 jobs:
   pre-release:
     name: Create Github Release
-    needs: [build]
     runs-on: ubuntu-20.04
     steps:
       - uses: "marvinpinto/action-automatic-releases@latest"
