@@ -1,4 +1,4 @@
 **/.DS_Store
 /vls.log
 /v-merkletree.dSYM/
-/debug.v
+/src/debug.v
