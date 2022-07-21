@@ -21,6 +21,7 @@ struct Block {
 
 type Child = Block | Node
 
+[inline]
 pub fn (mut m MerkleTree) build(blocks [][]u8) {
 	mut leaves := []&Child{}
 
@@ -38,6 +39,7 @@ pub fn (mut m MerkleTree) build(blocks [][]u8) {
 	m.root.get_hash(m.hash_function)
 }
 
+[inline]
 fn (mut m MerkleTree) process_nodes(nodes []&Child) {
 	if 1 == nodes.len {
 		// root found
@@ -72,6 +74,7 @@ fn (mut m MerkleTree) process_nodes(nodes []&Child) {
 	m.process_nodes(parents)
 }
 
+[inline]
 fn (mut n Node) get_hash(hash_function HashFunction) []u8 {
 	// lazy hash processing
 	if 0 != n.hash.len {
@@ -106,6 +109,7 @@ fn (mut n Node) get_hash(hash_function HashFunction) []u8 {
 	return n.hash
 }
 
+[inline]
 pub fn (mut m MerkleTree) get_root() []u8 {
 	return m.root.get_hash(m.hash_function)
 }
